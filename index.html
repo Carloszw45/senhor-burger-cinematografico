@@ -15,15 +15,17 @@
   <div id="loading"><div><span class="dot"></span>Carregando experiência Senhor Burger...</div></div>
   <script>
     (async () => {
-      const files = Array.from({length: 8}, (_, i) => `parts/part${String(i + 1).padStart(2, '0')}.html`);
       try {
-        const responses = await Promise.all(files.map(file => fetch(file, {cache: 'no-store'})));
-        responses.forEach((response, i) => {
-          if (!response.ok) throw new Error(`Falha ao carregar ${files[i]}: ${response.status}`);
-        });
-        const parts = await Promise.all(responses.map(response => response.text()));
+        const response = await fetch('site.b64', {cache: 'no-store'});
+        if (!response.ok) throw new Error(`Falha ao carregar site: ${response.status}`);
+        const b64 = (await response.text()).trim();
+        const binary = atob(b64);
+        const compressed = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) compressed[i] = binary.charCodeAt(i);
+        const stream = new Blob([compressed]).stream().pipeThrough(new DecompressionStream('gzip'));
+        const html = await new Response(stream).text();
         document.open();
-        document.write(parts.join(''));
+        document.write(html);
         document.close();
       } catch (error) {
         console.error(error);
