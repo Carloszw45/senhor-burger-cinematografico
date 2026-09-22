@@ -16,7 +16,7 @@
   <script>
     (async () => {
       try {
-        const files = ['latest/chunk01.b64','latest/chunk02.b64','latest/chunk03.b64','latest/chunk04.b64'];
+        const files = ['payload7/part01.txt','payload7/part02.txt','payload7/part03.txt','payload7/part04.txt'];
         const responses = await Promise.all(files.map(file => fetch(file, {cache:'no-store'})));
         responses.forEach((response, i) => {
           if (!response.ok) throw new Error(`Falha ao carregar ${files[i]}: ${response.status}`);
