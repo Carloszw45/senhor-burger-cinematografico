@@ -16,9 +16,13 @@
   <script>
     (async () => {
       try {
-        const response = await fetch('site.b64', {cache: 'no-store'});
-        if (!response.ok) throw new Error(`Falha ao carregar site: ${response.status}`);
-        const b64 = (await response.text()).trim();
+        const files = ['latest/chunk01.b64','latest/chunk02.b64','latest/chunk03.b64','latest/chunk04.b64'];
+        const responses = await Promise.all(files.map(file => fetch(file, {cache:'no-store'})));
+        responses.forEach((response, i) => {
+          if (!response.ok) throw new Error(`Falha ao carregar ${files[i]}: ${response.status}`);
+        });
+        const parts = await Promise.all(responses.map(response => response.text()));
+        const b64 = parts.join('').replace(/\s+/g,'');
         const binary = atob(b64);
         const compressed = new Uint8Array(binary.length);
         for (let i = 0; i < binary.length; i++) compressed[i] = binary.charCodeAt(i);
